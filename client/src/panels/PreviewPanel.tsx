@@ -1,32 +1,24 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
+import componentCSS from '../components/ui/components.css?raw';
 
 interface PreviewPanelProps {
-    code: string;
+  code: string;
 }
 
 const PreviewPanel: React.FC<PreviewPanelProps> = ({ code }) => {
-    const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    // Read the component CSS for injection into the iframe
-    const componentCSS = useMemo(() => {
-        // This CSS will be fetched and injected
-        return fetch('/src/components/ui/components.css').then(r => r.text()).catch(() => '');
-    }, []);
+  useEffect(() => {
+    if (!iframeRef.current || !code) return;
 
-    useEffect(() => {
-        if (!iframeRef.current || !code) return;
+    // Transform the code to be renderable in an iframe
+    // We strip imports and create a self-contained HTML page
+    const transformedCode = code
+      .replace(/import\s+.*?from\s+['"].*?['"];?\n?/g, '') // Remove imports
+      .replace(/export\s+default\s+/g, '') // Remove export default
+      .replace(/export\s+/g, ''); // Remove other exports
 
-        const renderPreview = async () => {
-            const css = await componentCSS;
-
-            // Transform the code to be renderable in an iframe
-            // We strip imports and create a self-contained HTML page
-            const transformedCode = code
-                .replace(/import\s+.*?from\s+['"].*?['"];?\n?/g, '') // Remove imports
-                .replace(/export\s+default\s+/g, '') // Remove export default
-                .replace(/export\s+/g, ''); // Remove other exports
-
-            const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -39,7 +31,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code }) => {
       background: #ffffff;
       color: #0f172a;
     }
-    ${css}
+    ${componentCSS}
   </style>
 </head>
 <body>
@@ -169,52 +161,49 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ code }) => {
 </body>
 </html>`;
 
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
 
-            if (iframeRef.current) {
-                iframeRef.current.src = url;
-            }
+    if (iframeRef.current) {
+      iframeRef.current.src = url;
+    }
 
-            // Cleanup
-            return () => URL.revokeObjectURL(url);
-        };
+    // Cleanup
+    return () => URL.revokeObjectURL(url);
+  }, [code]);
 
-        renderPreview();
-    }, [code, componentCSS]);
-
-    return (
-        <div className="preview-panel">
-            <div className="preview-panel__header">
-                <div className="preview-panel__title">
-                    <span className="preview-panel__icon">👁️</span>
-                    Live Preview
-                </div>
-                <div className="preview-panel__status">
-                    {code ? (
-                        <span className="preview-panel__live-badge">● Live</span>
-                    ) : (
-                        <span className="preview-panel__idle-badge">○ Idle</span>
-                    )}
-                </div>
-            </div>
-            <div className="preview-panel__content">
-                {!code ? (
-                    <div className="preview-panel__empty">
-                        <div className="preview-panel__empty-icon">🖼️</div>
-                        <p>Preview will appear here</p>
-                    </div>
-                ) : (
-                    <iframe
-                        ref={iframeRef}
-                        className="preview-panel__iframe"
-                        title="Live Preview"
-                        sandbox="allow-scripts"
-                    />
-                )}
-            </div>
+  return (
+    <div className="preview-panel">
+      <div className="preview-panel__header">
+        <div className="preview-panel__title">
+          <span className="preview-panel__icon">👁️</span>
+          Live Preview
         </div>
-    );
+        <div className="preview-panel__status">
+          {code ? (
+            <span className="preview-panel__live-badge">● Live</span>
+          ) : (
+            <span className="preview-panel__idle-badge">○ Idle</span>
+          )}
+        </div>
+      </div>
+      <div className="preview-panel__content">
+        {!code ? (
+          <div className="preview-panel__empty">
+            <div className="preview-panel__empty-icon">🖼️</div>
+            <p>Preview will appear here</p>
+          </div>
+        ) : (
+          <iframe
+            ref={iframeRef}
+            className="preview-panel__iframe"
+            title="Live Preview"
+            sandbox="allow-scripts"
+          />
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default PreviewPanel;
