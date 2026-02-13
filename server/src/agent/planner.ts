@@ -5,7 +5,7 @@
  * selects components, and outputs a structured JSON plan.
  */
 
-import { getModel } from './aiClient.js';
+import { getModel, withRetry } from './aiClient.js';
 import { PLANNER_PROMPT } from './prompts.js';
 
 export interface ComponentPlan {
@@ -29,7 +29,7 @@ export async function runPlanner(userIntent: string): Promise<UIPlan> {
 
     const prompt = PLANNER_PROMPT + userIntent;
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     const responseText = result.response.text();
 
     // Extract JSON from response (strip markdown fences if present)

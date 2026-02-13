@@ -5,7 +5,7 @@
  * using only the whitelisted components.
  */
 
-import { getModel } from './aiClient.js';
+import { getModel, withRetry } from './aiClient.js';
 import { GENERATOR_PROMPT, MODIFIER_PROMPT } from './prompts.js';
 import type { UIPlan } from './planner.js';
 
@@ -14,7 +14,7 @@ export async function runGenerator(plan: UIPlan): Promise<string> {
 
     const prompt = GENERATOR_PROMPT + JSON.stringify(plan, null, 2);
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     let code = result.response.text().trim();
 
     // Strip markdown fences if present
@@ -41,7 +41,7 @@ export async function runModifier(currentCode: string, modificationRequest: stri
         .replace('{CURRENT_CODE}', currentCode)
         .replace('{MODIFICATION_REQUEST}', modificationRequest);
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     let code = result.response.text().trim();
 
     // Strip markdown fences if present

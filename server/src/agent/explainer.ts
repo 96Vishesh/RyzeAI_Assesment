@@ -5,7 +5,7 @@
  * referencing layout and component choices.
  */
 
-import { getModel } from './aiClient.js';
+import { getModel, withRetry } from './aiClient.js';
 import { EXPLAINER_PROMPT } from './prompts.js';
 import type { UIPlan } from './planner.js';
 
@@ -21,7 +21,7 @@ export async function runExplainer(
         .replace('{PLAN}', JSON.stringify(plan, null, 2))
         .replace('{CODE}', code);
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     return result.response.text().trim();
 }
 
@@ -51,6 +51,6 @@ Previous code length: ${originalCode.length} characters
 New code length: ${modifiedCode.length} characters
 `;
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     return result.response.text().trim();
 }
