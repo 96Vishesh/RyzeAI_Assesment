@@ -1,8 +1,3 @@
-# ============================================
-# RyzeAI UI Generator - Multi-stage Dockerfile
-# ============================================
-
-# --- Stage 1: Build the React client ---
 FROM node:20-alpine AS client-build
 
 WORKDIR /app/client

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ryzeai:
+    build: .
+    container_name: ryzeai-ui-generator
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    restart: unless-stopped
