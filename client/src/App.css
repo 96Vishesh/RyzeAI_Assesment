@@ -572,7 +572,7 @@ body {
   border: none;
   outline: none;
   resize: none;
-  overflow: auto;
+  overflow: hidden;
   white-space: pre;
   -webkit-text-fill-color: transparent;
 }
