@@ -5,7 +5,7 @@
  * selects components, and outputs a structured JSON plan.
  */
 
-import { getModel, withRetry } from './aiClient.js';
+import { getGroqClient, AI_MODEL, withRetry } from './aiClient.js';
 import { PLANNER_PROMPT } from './prompts.js';
 
 export interface ComponentPlan {
@@ -25,12 +25,21 @@ export interface UIPlan {
 }
 
 export async function runPlanner(userIntent: string): Promise<UIPlan> {
-    const model = getModel();
+    const groq = getGroqClient();
 
-    const prompt = PLANNER_PROMPT + userIntent;
+    const result = await withRetry(() =>
+        groq.chat.completions.create({
+            model: AI_MODEL,
+            messages: [
+                { role: 'system', content: PLANNER_PROMPT },
+                { role: 'user', content: userIntent },
+            ],
+            temperature: 0.3,
+            max_tokens: 4096,
+        })
+    );
 
-    const result = await withRetry(() => model.generateContent(prompt));
-    const responseText = result.response.text();
+    const responseText = result.choices[0]?.message?.content || '';
 
     // Extract JSON from response (strip markdown fences if present)
     let jsonStr = responseText.trim();
@@ -41,7 +50,6 @@ export async function runPlanner(userIntent: string): Promise<UIPlan> {
     try {
         const plan: UIPlan = JSON.parse(jsonStr);
 
-        // Validate plan structure
         if (!plan.layout || !plan.components || !Array.isArray(plan.components)) {
             throw new Error('Invalid plan structure: missing layout or components');
         }

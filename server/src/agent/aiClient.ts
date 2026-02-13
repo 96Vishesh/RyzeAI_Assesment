@@ -1,26 +1,29 @@
 /**
- * Shared Gemini AI client
+ * Shared Groq AI client
  * 
  * Lazy-initialized to ensure dotenv has loaded the API key first.
+ * Uses Groq's fast inference with Llama 3.3 70B model.
  */
 
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
-let genAI: GoogleGenerativeAI | null = null;
+let groqClient: Groq | null = null;
 
-export function getModel(): GenerativeModel {
-    if (!genAI) {
-        const apiKey = process.env.GOOGLE_AI_API_KEY;
-        if (!apiKey || apiKey === 'your-gemini-api-key-here') {
-            throw new Error('GOOGLE_AI_API_KEY is not set. Please add it to server/.env');
+export function getGroqClient(): Groq {
+    if (!groqClient) {
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey || apiKey === 'your-groq-api-key-here') {
+            throw new Error('GROQ_API_KEY is not set. Please add it to server/.env');
         }
-        genAI = new GoogleGenerativeAI(apiKey);
+        groqClient = new Groq({ apiKey });
     }
-    return genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    return groqClient;
 }
 
+export const AI_MODEL = 'llama-3.3-70b-versatile';
+
 /**
- * Retry wrapper for Gemini API calls with exponential backoff.
+ * Retry wrapper for API calls with exponential backoff.
  * Handles 429 rate limit errors automatically.
  */
 export async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
@@ -30,7 +33,7 @@ export async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promis
         } catch (error: unknown) {
             const status = (error as { status?: number }).status;
             if (status === 429 && attempt < maxRetries) {
-                const waitSeconds = Math.pow(2, attempt + 1) * 5; // 10s, 20s, 40s
+                const waitSeconds = Math.pow(2, attempt + 1) * 5;
                 console.log(`[Retry] Rate limited. Waiting ${waitSeconds}s before retry ${attempt + 1}/${maxRetries}...`);
                 await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
             } else {

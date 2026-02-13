@@ -5,17 +5,26 @@
  * using only the whitelisted components.
  */
 
-import { getModel, withRetry } from './aiClient.js';
+import { getGroqClient, AI_MODEL, withRetry } from './aiClient.js';
 import { GENERATOR_PROMPT, MODIFIER_PROMPT } from './prompts.js';
 import type { UIPlan } from './planner.js';
 
 export async function runGenerator(plan: UIPlan): Promise<string> {
-    const model = getModel();
+    const groq = getGroqClient();
 
-    const prompt = GENERATOR_PROMPT + JSON.stringify(plan, null, 2);
+    const result = await withRetry(() =>
+        groq.chat.completions.create({
+            model: AI_MODEL,
+            messages: [
+                { role: 'system', content: GENERATOR_PROMPT },
+                { role: 'user', content: JSON.stringify(plan, null, 2) },
+            ],
+            temperature: 0.2,
+            max_tokens: 4096,
+        })
+    );
 
-    const result = await withRetry(() => model.generateContent(prompt));
-    let code = result.response.text().trim();
+    let code = (result.choices[0]?.message?.content || '').trim();
 
     // Strip markdown fences if present
     if (code.startsWith('```')) {
@@ -35,21 +44,29 @@ export async function runGenerator(plan: UIPlan): Promise<string> {
 }
 
 export async function runModifier(currentCode: string, modificationRequest: string): Promise<string> {
-    const model = getModel();
+    const groq = getGroqClient();
 
-    const prompt = MODIFIER_PROMPT
-        .replace('{CURRENT_CODE}', currentCode)
-        .replace('{MODIFICATION_REQUEST}', modificationRequest);
+    const systemPrompt = MODIFIER_PROMPT.replace('{CURRENT_CODE}', currentCode);
 
-    const result = await withRetry(() => model.generateContent(prompt));
-    let code = result.response.text().trim();
+    const result = await withRetry(() =>
+        groq.chat.completions.create({
+            model: AI_MODEL,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: modificationRequest },
+            ],
+            temperature: 0.2,
+            max_tokens: 4096,
+        })
+    );
+
+    let code = (result.choices[0]?.message?.content || '').trim();
 
     // Strip markdown fences if present
     if (code.startsWith('```')) {
         code = code.replace(/^```(?:tsx|jsx|typescript|javascript)?\n?/, '').replace(/\n?```$/, '');
     }
 
-    // Basic validation
     if (!code.includes('export default function') && !code.includes('export default')) {
         if (code.includes('function GeneratedUI')) {
             code += '\nexport default GeneratedUI;';
