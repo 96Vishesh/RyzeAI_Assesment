@@ -5,10 +5,8 @@
  * selects components, and outputs a structured JSON plan.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModel } from './aiClient.js';
 import { PLANNER_PROMPT } from './prompts.js';
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 export interface ComponentPlan {
     component: string;
@@ -27,7 +25,7 @@ export interface UIPlan {
 }
 
 export async function runPlanner(userIntent: string): Promise<UIPlan> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getModel();
 
     const prompt = PLANNER_PROMPT + userIntent;
 

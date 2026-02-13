@@ -5,14 +5,12 @@
  * using only the whitelisted components.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModel } from './aiClient.js';
 import { GENERATOR_PROMPT, MODIFIER_PROMPT } from './prompts.js';
 import type { UIPlan } from './planner.js';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
-
 export async function runGenerator(plan: UIPlan): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getModel();
 
     const prompt = GENERATOR_PROMPT + JSON.stringify(plan, null, 2);
 
@@ -26,7 +24,6 @@ export async function runGenerator(plan: UIPlan): Promise<string> {
 
     // Basic validation: must contain an export default function
     if (!code.includes('export default function') && !code.includes('export default')) {
-        // Try to wrap it in a default export
         if (code.includes('function GeneratedUI')) {
             code += '\nexport default GeneratedUI;';
         } else {
@@ -38,7 +35,7 @@ export async function runGenerator(plan: UIPlan): Promise<string> {
 }
 
 export async function runModifier(currentCode: string, modificationRequest: string): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getModel();
 
     const prompt = MODIFIER_PROMPT
         .replace('{CURRENT_CODE}', currentCode)

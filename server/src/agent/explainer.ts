@@ -5,18 +5,16 @@
  * referencing layout and component choices.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getModel } from './aiClient.js';
 import { EXPLAINER_PROMPT } from './prompts.js';
 import type { UIPlan } from './planner.js';
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 export async function runExplainer(
     userRequest: string,
     plan: UIPlan,
     code: string
 ): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getModel();
 
     const prompt = EXPLAINER_PROMPT
         .replace('{USER_REQUEST}', userRequest)
@@ -35,7 +33,7 @@ export async function runModificationExplainer(
     modifiedCode: string,
     modificationRequest: string
 ): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getModel();
 
     const prompt = `You are a UI Decision Explainer. The user requested a modification to an existing UI.
 
