@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ryzeai-ui-generator
+    runtime: node
+    buildCommand: npm run install:all && cd client && npm run build && cd ../server && npx tsc -b
+    startCommand: node server/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
