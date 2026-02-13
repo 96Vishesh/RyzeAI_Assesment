@@ -544,7 +544,7 @@ body {
 .code-panel__code-area {
   flex: 1;
   position: relative;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .code-panel__highlighted {
