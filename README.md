@@ -122,7 +122,7 @@ All prompt templates are in `server/src/agent/prompts.ts`.
 
 ### Prerequisites
 - Node.js 18+
-- Google AI API Key (Gemini)
+- Groq API Key
 
 ### Installation
 
@@ -238,7 +238,7 @@ RyzeAI_Assesment/
 |-------|-----------|
 | Frontend | React 18 + TypeScript + Vite |
 | Backend | Express + TypeScript |
-| AI | Google Gemini 2.0 Flash |
+| AI | Groq (Llama 3.3) |
 | Styling | Vanilla CSS (fixed, no AI-generated) |
 | Storage | In-memory (Map-based) |
 | Preview | Sandboxed iframe + Babel standalone |

@@ -91,6 +91,25 @@ body {
   position: relative;
 }
 
+.app__new-chat-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: var(--app-font);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--app-primary), #a78bfa);
+  color: white;
+  border: none;
+  border-radius: var(--app-radius);
+  cursor: pointer;
+  transition: all var(--app-transition);
+}
+
+.app__new-chat-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 106, 246, 0.3);
+}
+
 .app__main {
   flex: 1;
   display: flex;

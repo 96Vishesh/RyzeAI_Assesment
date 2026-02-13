@@ -114,6 +114,16 @@ function App() {
     setCode(newCode);
   }, []);
 
+  const handleNewChat = useCallback(() => {
+    setMessages([]);
+    setCode('');
+    setVersions([]);
+    setCurrentVersionId(undefined);
+    setShowVersions(false);
+    setIsLoading(false);
+    sessionIdRef.current = `session-${Date.now()}`;
+  }, []);
+
   return (
     <div className="app">
       <header className="app__header">
@@ -122,6 +132,9 @@ function App() {
           <span className="app__title">RyzeAI UI Generator</span>
         </div>
         <div className="app__actions">
+          <button className="app__new-chat-btn" onClick={handleNewChat} title="Start a new chat">
+            ✨ New Chat
+          </button>
           <VersionSidebar
             versions={versions}
             currentVersionId={currentVersionId}
