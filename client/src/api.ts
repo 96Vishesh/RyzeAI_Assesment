@@ -4,7 +4,7 @@
  * Centralized API communication with the backend agent.
  */
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = import.meta.env.DEV ? 'http://localhost:3001/api' : '/api';
 
 export interface VersionInfo {
     id: string;
