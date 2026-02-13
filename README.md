@@ -2,14 +2,14 @@
 
 An AI-powered agent that converts natural language UI descriptions into working UI code with live preview, using a **fixed, deterministic component library**.
 
-> Think: Claude Code for UI — but safe, reproducible, and debuggable.
+> Think: Claude Code for UI - but safe, reproducible, and debuggable.
 
 ---
 
 ## 🎯 Features
 
 - **Natural Language → UI**: Describe any UI in plain English and see it built instantly
-- **Deterministic Component System**: All UIs use the same 8 fixed components — identical rendering every time
+- **Deterministic Component System**: All UIs use the same 8 fixed components - identical rendering every time
 - **Multi-Step AI Agent**: Planner → Generator → Explainer pipeline (not a single LLM call)
 - **Incremental Edits**: Modify existing UIs without full rewrites
 - **Version History & Rollback**: Track every change and restore any previous version
@@ -83,7 +83,7 @@ The AI agent uses a **3-step pipeline** (not a single LLM call):
 ### Modifier (for incremental edits)
 - **Input**: Current code + modification request
 - **Output**: Modified code (preserving existing structure)
-- **Key rule**: Modifies, doesn't rewrite — preserves unchanged components
+- **Key rule**: Modifies, doesn't rewrite - preserves unchanged components
 
 All prompt templates are in `server/src/agent/prompts.ts`.
 
@@ -242,3 +242,9 @@ RyzeAI_Assesment/
 | Styling | Vanilla CSS (fixed, no AI-generated) |
 | Storage | In-memory (Map-based) |
 | Preview | Sandboxed iframe + Babel standalone |
+
+## Author
+
+Vishesh Srivastava
+
+created for the RyzeAI Assessment

@@ -544,7 +544,7 @@ body {
 .code-panel__code-area {
   flex: 1;
   position: relative;
-  overflow: hidden;
+  min-width: 0;
 }
 
 .code-panel__highlighted {
@@ -555,6 +555,8 @@ body {
   white-space: pre;
   color: var(--app-text);
   min-height: 100%;
+  width: fit-content;
+  min-width: 100%;
 }
 
 .code-panel__textarea {
